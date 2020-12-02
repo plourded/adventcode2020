@@ -2,6 +2,15 @@
 <?php
 // application.php
 
+function base_path(string $filename = "")
+{
+    return __DIR__ . "/" . $filename;
+}
+function storage_path(string $filename = "")
+{
+    return __DIR__ . "/storage/" . $filename;
+}
+
 require __DIR__.'/vendor/autoload.php';
 
 use App\Command\Puzzle201901Command;
