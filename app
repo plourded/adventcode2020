@@ -13,15 +13,15 @@ function storage_path(string $filename = "")
 
 require __DIR__.'/vendor/autoload.php';
 
-use App\Command\Puzzle201901Command;
-use App\Command\Puzzle202001Command;
 
 use Symfony\Component\Console\Application;
 
 $application = new Application();
 
 // ... register commands
-$application->add(new Puzzle201901Command());
-$application->add(new Puzzle202001Command());
+$application->add(new App\Command\Puzzle201901Command());
+$application->add(new App\Command\Puzzle202001Command());
+$application->add(new App\Command\Puzzle202002Command());
+$application->add(new App\Command\Puzzle202003Command());
 
 $application->run();
