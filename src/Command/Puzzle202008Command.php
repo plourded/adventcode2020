@@ -52,8 +52,6 @@ class Puzzle202008Command extends Command
             var_dump($e->getMessage());
         }
 
-
-
         return Command::SUCCESS;
     }
 

@@ -29,6 +29,7 @@ class InstructionStack
     public function run()
     {
         if (!isset($this->instructions[$this->instruction_index])) {
+            //TODO: can be different than a valid end of program.
             throw new \Exception("Out of stack, accumulator: " . $this->accumulator->value);
         }
 
