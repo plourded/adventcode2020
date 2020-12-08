@@ -27,5 +27,6 @@ $application->add(new App\Command\Puzzle202004Command());
 $application->add(new App\Command\Puzzle202005Command());
 $application->add(new App\Command\Puzzle202006Command());
 $application->add(new App\Command\Puzzle202007Command());
+$application->add(new App\Command\Puzzle202008Command());
 
 $application->run();
