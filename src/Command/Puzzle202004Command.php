@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Utils\File;
+use App\Utils\Validator\Validator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -11,78 +12,9 @@ class Puzzle202004Command extends Command
 {
     protected static $defaultName = 'solve:four2020';
 
-    protected array $required_rules;
-
     public function __construct(string $name = null)
     {
         parent::__construct($name);
-
-        $this->required_rules = [
-            // (Birth Year)
-            "byr" => function (string $str_value): bool {
-                if (strlen($str_value) !== 4)
-                    return false;
-
-                $date = intval($str_value);
-                return ($date >= 1920) && ($date <= 2002);
-            },
-
-            // (Issue Year)
-            "iyr" => function (string $str_value): bool {
-                if (strlen($str_value) !== 4)
-                    return false;
-
-                $date = intval($str_value);
-                return ($date >= 2010) && ($date <= 2020);
-            },
-
-            // (Expiration Year)
-            "eyr" => function (string $str_value): bool {
-                if (strlen($str_value) !== 4)
-                    return false;
-
-                $date = intval($str_value);
-                return ($date >= 2020) && ($date <= 2030);
-            },
-
-            // (Height)
-            "hgt" => function (string $str_value): bool {
-                if (str_ends_with($str_value, "cm")) {
-                    $value = intval(substr($str_value, 0, -2));
-
-                    return ($value >= 150) && ($value <= 193);
-                } elseif (str_ends_with($str_value, "in")) {
-                    $value = intval(substr($str_value, 0, -2));
-
-                    return ($value >= 59) && ($value <= 76);
-                }
-
-                return false;
-            },
-
-            // (Hair Color)
-            "hcl" => function (string $str_value): bool {
-
-                return preg_match("/^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})$/", $str_value);
-            },
-
-            // (Eye Color)
-            "ecl" => function (string $str_value): bool {
-                return in_array($str_value, ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]);
-            },
-
-            // (Passport ID)
-            "pid" => function (string $str_value): bool {
-                if (strlen($str_value) !== 9)
-                    return false;
-
-                return is_numeric($str_value);
-            },
-
-            "cid" => function (string $str_value): bool {
-                return true;
-            },
-        ];
     }
 
     protected function configure()
@@ -116,47 +48,39 @@ class Puzzle202004Command extends Command
             }
         }
 
-        $passports = [];
+        $validator = new Validator([
+            "byr" => "require|len:4|between:1920,2002",
+            "iyr" => "require|len:4|between:2010,2020",
+            "eyr" => "require|len:4|between:2020,2030",
+            "hgt" => "require|height",
+            "hcl" => "require|hex_color",
+            "ecl" => "require|in:amb,blu,brn,gry,grn,hzl,oth", //once
+            "pid" => "require|len:9|numeric",
+            "cid" => "optional",
+        ]);
+
+        $valid_passports = [];
         foreach ($passports_items as $index => $passport_items) {
             $passport = [];
             foreach ($passport_items as $item) {
                 [$key, $value] = explode(":", $item);
 
                 if (isset($passport[$key]) && $key === "ecl") {
-                    $passport[$key]["is_valid"] = false;
+                    $passport[$key] = null; //once patch
                 } else {
-                    $passport[$key] = ["value" => $value, "is_valid" => $this->required_rules[$key]($value)];
+                    $passport[$key] = $value;
                 }
             }
 
-            if(!isset($passport["cid"]))
+            if( $validator->validate($passport) )
             {
-                $passport["cid"] = ["value" => "", "is_valid" => true];
-            }
-
-            $passports[] = $passport;
-        }
-
-        $valid_passports = [];
-        foreach ($passports as $passport) {
-            if ($this->validate_passport($passport)) {
                 $valid_passports[] = $passport;
             }
+
         }
 
         $output->writeln("Puzzle A: There is " . count($valid_passports) . " valid passports");
 
         return Command::SUCCESS;
-    }
-
-    protected function validate_passport(array $passport): bool
-    {
-        foreach ($this->required_rules as $key => $validator) {
-            if ((!array_key_exists($key, $passport)) || (!$passport[$key]["is_valid"]) ) {
-                //var_dump($passport);
-                return false;
-            }
-        }
-        return true;
     }
 }
