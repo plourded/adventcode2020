@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Utils\File;
+use App\Utils\Number;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -25,18 +26,8 @@ class Puzzle202001Command extends Command
         $input_file = new File("2020/1.txt");
 
         $account_items = $input_file->toArray();
-        $item2 = 0;
-        do {
-            $item1 = array_shift($account_items);
 
-            foreach ($account_items as $acount_item) {
-                if (($item1 + $acount_item) == 2020) {
-                    $item2 = $acount_item;
-                    break;
-                }
-            }
-
-        } while (($item1 + $item2) !== 2020);
+        [$item1, $item2] = Number::findTwoValueThatSumEqual(2020, $account_items);
 
         $output->writeln('Item 1: ' . $item1 . " and item 2: " . $item2);
         $output->writeln('Puzzle 1A response: ' . ($item1 * $item2));
